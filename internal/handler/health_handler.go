@@ -1,21 +1,35 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 )
 
-type HealthHandler struct{}
+type HealthHandler struct {
+	db *sql.DB
+}
 
-func NewHealthHandler() *HealthHandler {
-	return &HealthHandler{}
+func NewHealthHandler(db *sql.DB) *HealthHandler {
+	return &HealthHandler{
+		db: db,
+	}
 }
 
 func (h *HealthHandler) Check(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 
-	_ = json.NewEncoder(w).Encode(map[string]string{
-		"status": "ok",
-	})
+	if err := h.db.Ping(); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"status": "ko",
+		})
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"status": "ok",
+		})
+	}
 }
