@@ -1,21 +1,20 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
-	"fmt"
 	"log"
 	"net/http"
+	"netops-api/internal/config"
+	"netops-api/internal/handler"
 	"netops-api/internal/logging"
-	"netops-api/internal/middleware"
 )
 
 func main() {
-	verbose := flag.Bool("v", false, "Activer les logs debugs")
-	logFile := flag.Bool("log-file", true, "Activer la sortie de log sur le fichier log temporaire")
-	flag.Parse()
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("erreur config: %v", err)
+	}
 
-	logger, err := logging.NewLogger(*verbose, *logFile)
+	logger, err := logging.NewLogger(cfg.Verbose, cfg.LogFile)
 	if err != nil {
 		log.Fatalf("impossible d'initialiser le logger")
 	}
@@ -23,23 +22,21 @@ func main() {
 
 	logger.Info("démarrage du serveur api")
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(struct {
-			Status  string `json:"status"`
-			Message string `json:"message"`
-		}{
-			Status:  "OK",
-			Message: "Hello World",
-		})
-	})
+	db, err := config.NewDatabase(cfg.DSN())
+	if err != nil {
+		logger.Error("échec connexion base de données %w", err)
+		log.Fatalf("impossible de se connecter à la base de données")
+	}
+	defer db.Close()
+	logger.Debug("connexion bd ok")
 
-	logMiddleware := middleware.LoggerMiddleware(logger)
-	wrappedMux := logMiddleware(mux)
+	computerHandler := handler.NewComputerHandler(logger)
+	healthHandler := handler.NewHealthHandler(logger, db)
 
-	if err := http.ListenAndServe(":8080", wrappedMux); err != nil {
-		fmt.Errorf("impossible d'écouter sur le port 8080")
+	router := handler.NewRouter(logger, computerHandler, healthHandler)
+
+	if err := http.ListenAndServe(":8080", router); err != nil {
+		logger.Error("impossible d'écouter sur le port 8080: %v", err)
 		return
 	}
 }
