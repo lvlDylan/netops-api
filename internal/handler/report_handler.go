@@ -21,7 +21,7 @@ func NewReportHandler(logger *logging.Logger, repo *repository.ReportRepository)
 }
 
 func (h *ReportHandler) InsertReport(w http.ResponseWriter, r *http.Request) {
-	var req domain.ComputerRequest
+	var req domain.ReportRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondWithError(w, http.StatusBadRequest, "payload invalide")

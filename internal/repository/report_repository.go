@@ -16,7 +16,7 @@ func NewReportRepository(db *sql.DB) *ReportRepository {
 	return &ReportRepository{db: db}
 }
 
-func (r *ReportRepository) SaveReport(ctx context.Context, req domain.ComputerRequest) error {
+func (r *ReportRepository) SaveReport(ctx context.Context, req domain.ReportRequest) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("impossible de démarrer la transaction: %w", err)
