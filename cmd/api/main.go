@@ -31,13 +31,14 @@ func main() {
 	defer db.Close()
 	logger.Debug("connexion bd ok")
 
-	reportRepo := repository.NewReport(db)
+	reportRepo := repository.NewReportRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db)
 
-	computerHandler := handler.NewComputerHandler(logger)
+	deviceHandler := handler.NewDeviceHandler(logger, deviceRepo)
 	reportHandler := handler.NewReportHandler(logger, reportRepo)
 	healthHandler := handler.NewHealthHandler(logger, db)
 
-	router := handler.NewRouter(logger, healthHandler, computerHandler, reportHandler)
+	router := handler.NewRouter(logger, healthHandler, deviceHandler, reportHandler)
 
 	if err := http.ListenAndServe(":8080", router); err != nil {
 		logger.Error("impossible d'écouter sur le port 8080: %v", err)
