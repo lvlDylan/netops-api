@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	Port    string `envconfig:"PORT" default:"8080"`
-	logFile bool   `envconfig:"LOGFILE" default:"false"`
+	LogFile bool   `envconfig:"LOGFILE" default:"false"`
 	Verbose bool   `envconfig:"VERBOSE" default:"false"`
 
 	Database string `envconfig:"DATABASE" default:"mariadb"`
