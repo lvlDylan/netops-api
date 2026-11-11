@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS device (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS history (
+CREATE TABLE IF NOT EXISTS report (
     id BIGINT NOT NULL AUTO_INCREMENT,
     send_at DATETIME(6) NOT NULL,
     device_id VARCHAR(36) NOT NULL,
@@ -26,11 +26,11 @@ CREATE TABLE IF NOT EXISTS history (
 
 CREATE TABLE IF NOT EXISTS disk (
     id BIGINT NOT NULL AUTO_INCREMENT,
-    history_id BIGINT NOT NULL,
+    report_id BIGINT NOT NULL,
     mountpoint VARCHAR(255) NOT NULL,
     usage_percent DOUBLE NOT NULL,
     used_bytes BIGINT NOT NULL,
     total_bytes BIGINT NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (history_id) REFERENCES history(id) ON DELETE CASCADE
+    FOREIGN KEY (report_id) REFERENCES report(id) ON DELETE CASCADE
 );
