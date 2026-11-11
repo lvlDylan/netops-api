@@ -4,15 +4,18 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"netops-api/internal/logging"
 )
 
 type HealthHandler struct {
-	db *sql.DB
+	logger *logging.Logger
+	db     *sql.DB
 }
 
-func NewHealthHandler(db *sql.DB) *HealthHandler {
+func NewHealthHandler(logger *logging.Logger, db *sql.DB) *HealthHandler {
 	return &HealthHandler{
-		db: db,
+		logger: logger,
+		db:     db,
 	}
 }
 
