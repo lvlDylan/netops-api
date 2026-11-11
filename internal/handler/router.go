@@ -18,6 +18,8 @@ func NewRouter(logger *logging.Logger,
 	apiMux.HandleFunc("GET /computers", computerHandler.ListComputers)
 	apiMux.HandleFunc("GET /computers/{id}", computerHandler.GetComputerByID)
 
+	apiMux.HandleFunc("POST /report", computerHandler.InsertReport)
+
 	mainMux.Handle("/api/", http.StripPrefix("/api", apiMux))
 
 	mainMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +27,7 @@ func NewRouter(logger *logging.Logger,
 		w.WriteHeader(http.StatusNotFound)
 		_ = json.NewEncoder(w).Encode(map[string]string{
 			"error": "Not found",
-			"path": r.URL.Path,
+			"path":  r.URL.Path,
 		})
 	})
 
