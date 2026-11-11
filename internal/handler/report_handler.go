@@ -44,3 +44,16 @@ func (h *ReportHandler) InsertReport(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(map[string]string{"status": "created"})
 }
+
+func (h *ReportHandler) GetReport(w http.ResponseWriter, r *http.Request) {
+	reports, err := h.repo.GetReports(r.Context())
+	if err != nil {
+		h.logger.Error("échec de la récupération des historiques: %v", err)
+		respondWithError(w, http.StatusServiceUnavailable, "erreur lors de la récupération des historiques")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(reports)
+}

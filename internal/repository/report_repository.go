@@ -40,14 +40,14 @@ func (r *ReportRepository) SaveReport(ctx context.Context, req domain.ComputerRe
 		return fmt.Errorf("échec de l'UPSERT device: %w", err)
 	}
 
-	historyQuery := `
-		INSERT INTO history (
+	reportQuery := `
+		INSERT INTO report (
 			send_at, device_id, ip_address, agent_version, uptime_seconds,
 			mem_usage_percent, mem_used_bytes, mem_total_bytes,
 			cpu_usage_percent, cpu_cores
 		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 	`
-	res, err := tx.ExecContext(ctx, historyQuery,
+	res, err := tx.ExecContext(ctx, reportQuery,
 		req.SendAt,
 		req.DeviceID,
 		req.Identity.IPAddress,
@@ -60,16 +60,16 @@ func (r *ReportRepository) SaveReport(ctx context.Context, req domain.ComputerRe
 		req.Metrics.CPUMetrics.Cores,
 	)
 	if err != nil {
-		return fmt.Errorf("échec de l'INSERT history: %w", err)
+		return fmt.Errorf("échec de l'INSERT report: %w", err)
 	}
 
-	historyID, err := res.LastInsertId()
+	reportID, err := res.LastInsertId()
 	if err != nil {
-		return fmt.Errorf("impossible de récupérer history_id: %w", err)
+		return fmt.Errorf("impossible de récupérer report_id: %w", err)
 	}
 
 	diskQuery := `
-		INSERT INTO disk (history_id, mountpoint, usage_percent, used_bytes, total_bytes)
+		INSERT INTO disk (report_id, mountpoint, usage_percent, used_bytes, total_bytes)
 		VALUES (?, ?, ?, ?, ?);
 	`
 	stmt, err := tx.PrepareContext(ctx, diskQuery)
@@ -80,7 +80,7 @@ func (r *ReportRepository) SaveReport(ctx context.Context, req domain.ComputerRe
 
 	for _, d := range req.Metrics.DiskMetrics {
 		_, err := stmt.ExecContext(ctx,
-			historyID,
+			reportID,
 			d.MountPoint,
 			d.UsagePercent,
 			d.UsedBytes,
@@ -96,4 +96,34 @@ func (r *ReportRepository) SaveReport(ctx context.Context, req domain.ComputerRe
 	}
 
 	return nil
+}
+
+func (r *ReportRepository) GetReports(ctx context.Context) ([]domain.Report, error) {
+	query := `SELECT id, send_at, device_id, ip_address, agent_version, uptime_seconds, mem_usage_percent, mem_used_bytes, mem_total_bytes, cpu_usage_percent, cpu_cores FROM report`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("erreur lors du SELECT report: %v", err)
+	}
+	defer rows.Close()
+
+	var reports []domain.Report
+	for rows.Next() {
+		var report domain.Report
+		err := rows.Scan(
+			&report.ID, &report.SendAt, &report.DeviceID,
+			&report.IPAddress, &report.AgentVersion, &report.UptimeSecond,
+			&report.MemUsagePercent, &report.MemUsedBytes, &report.MemTotalBytes,
+			&report.CPUUsagePercent, &report.CPUCores)
+		if err != nil {
+			return nil, fmt.Errorf("erreur lors du scan d'une ligne report: %w", err)
+		}
+
+		reports = append(reports, report)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("erreur lors de l'itération sur les lignes: %w", err)
+	}
+
+	return reports, nil
 }
