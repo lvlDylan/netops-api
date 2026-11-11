@@ -8,7 +8,7 @@ import (
 )
 
 func NewRouter(logger *logging.Logger,
-	healthHandler *HealthHandler, computerHandler *ComputerHandler,
+	healthHandler *HealthHandler, deviceHandler *DeviceHandler,
 	reportHandler *ReportHandler,
 ) http.Handler {
 	mainMux := http.NewServeMux()
@@ -16,8 +16,8 @@ func NewRouter(logger *logging.Logger,
 	mainMux.HandleFunc("GET /health", healthHandler.Check)
 
 	apiMux := http.NewServeMux()
-	apiMux.HandleFunc("GET /computers", computerHandler.ListComputers)
-	apiMux.HandleFunc("GET /computers/{id}", computerHandler.GetComputerByID)
+	apiMux.HandleFunc("GET /computers", deviceHandler.GetDevices)
+	apiMux.HandleFunc("GET /computers/{id}", deviceHandler.GetDeviceByID)
 
 	apiMux.HandleFunc("GET /reports", reportHandler.GetReport)
 	apiMux.HandleFunc("GET /reports/{id}", reportHandler.GetReportByID)
