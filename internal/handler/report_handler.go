@@ -57,3 +57,22 @@ func (h *ReportHandler) GetReport(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(reports)
 }
+
+func (h *ReportHandler) GetReportByID(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	report, err := h.repo.GetReportByID(r.Context(), id)
+	if err != nil {
+		h.logger.Error("échec de la récupération de l'historique (%s): %v", id, err)
+		respondWithError(w, http.StatusServiceUnavailable, "erreur lors de la récupération du report "+id)
+		return
+	}
+
+	if report == nil {
+		respondWithError(w, http.StatusNotFound, "report introuvable")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(report)
+}

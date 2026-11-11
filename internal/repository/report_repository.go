@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"netops-api/internal/domain"
 )
@@ -111,7 +112,7 @@ func (r *ReportRepository) GetReports(ctx context.Context) ([]domain.Report, err
 		var report domain.Report
 		err := rows.Scan(
 			&report.ID, &report.SendAt, &report.DeviceID,
-			&report.IPAddress, &report.AgentVersion, &report.UptimeSecond,
+			&report.IPAddress, &report.AgentVersion, &report.UptimeSeconds,
 			&report.MemUsagePercent, &report.MemUsedBytes, &report.MemTotalBytes,
 			&report.CPUUsagePercent, &report.CPUCores)
 		if err != nil {
@@ -126,4 +127,24 @@ func (r *ReportRepository) GetReports(ctx context.Context) ([]domain.Report, err
 	}
 
 	return reports, nil
+}
+
+func (r *ReportRepository) GetReportByID(ctx context.Context, id string) (*domain.Report, error) {
+	query := `SELECT id, send_at, device_id, ip_address, agent_version, uptime_seconds, mem_usage_percent, mem_used_bytes, mem_total_bytes, cpu_usage_percent, cpu_cores FROM report WHERE id = ?`
+	var report domain.Report
+
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&report.ID, &report.SendAt, &report.DeviceID,
+		&report.IPAddress, &report.AgentVersion, &report.UptimeSeconds,
+		&report.MemUsagePercent, &report.MemUsedBytes, &report.MemTotalBytes,
+		&report.CPUUsagePercent, &report.CPUCores,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("erreur lors de la récupération d'un report: %w", err)
+	}
+
+	return &report, nil
 }

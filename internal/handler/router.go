@@ -20,6 +20,7 @@ func NewRouter(logger *logging.Logger,
 	apiMux.HandleFunc("GET /computers/{id}", computerHandler.GetComputerByID)
 
 	apiMux.HandleFunc("GET /reports", reportHandler.GetReport)
+	apiMux.HandleFunc("GET /reports/{id}", reportHandler.GetReportByID)
 	apiMux.HandleFunc("POST /report", reportHandler.InsertReport)
 
 	mainMux.Handle("/api/", http.StripPrefix("/api", apiMux))
