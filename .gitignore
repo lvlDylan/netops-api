@@ -1,1 +1,19 @@
+# Binaires compilés Go
+*.exe
+*.so
+netops-agent
+
+# Dossier d'output de compilation
+/bin/
+
+# Fichiers de configuration & Variables d'env
 .env
+
+# Logs
+*.log
+*.tmp
+
+# IDEs
+# GoLand
+.idea/
+*.iml
