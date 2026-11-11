@@ -31,9 +31,10 @@ func main() {
 	logger.Debug("connexion bd ok")
 
 	computerHandler := handler.NewComputerHandler(logger)
+	reportHandler := handler.NewReportHandler(logger, db)
 	healthHandler := handler.NewHealthHandler(logger, db)
 
-	router := handler.NewRouter(logger, computerHandler, healthHandler)
+	router := handler.NewRouter(logger, healthHandler, computerHandler, reportHandler)
 
 	if err := http.ListenAndServe(":8080", router); err != nil {
 		logger.Error("impossible d'écouter sur le port 8080: %v", err)

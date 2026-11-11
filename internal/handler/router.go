@@ -8,7 +8,8 @@ import (
 )
 
 func NewRouter(logger *logging.Logger,
-	computerHandler *ComputerHandler, healthHandler *HealthHandler,
+	healthHandler *HealthHandler, computerHandler *ComputerHandler,
+	reportHandler *ReportHandler,
 ) http.Handler {
 	mainMux := http.NewServeMux()
 
@@ -18,7 +19,7 @@ func NewRouter(logger *logging.Logger,
 	apiMux.HandleFunc("GET /computers", computerHandler.ListComputers)
 	apiMux.HandleFunc("GET /computers/{id}", computerHandler.GetComputerByID)
 
-	apiMux.HandleFunc("POST /report", computerHandler.InsertReport)
+	apiMux.HandleFunc("POST /report", reportHandler.InsertReport)
 
 	mainMux.Handle("/api/", http.StripPrefix("/api", apiMux))
 
