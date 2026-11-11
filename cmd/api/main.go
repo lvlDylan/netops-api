@@ -6,6 +6,7 @@ import (
 	"netops-api/internal/config"
 	"netops-api/internal/handler"
 	"netops-api/internal/logging"
+	"netops-api/internal/repository"
 )
 
 func main() {
@@ -30,8 +31,10 @@ func main() {
 	defer db.Close()
 	logger.Debug("connexion bd ok")
 
+	reportRepo := repository.NewReport(db)
+
 	computerHandler := handler.NewComputerHandler(logger)
-	reportHandler := handler.NewReportHandler(logger, db)
+	reportHandler := handler.NewReportHandler(logger, reportRepo)
 	healthHandler := handler.NewHealthHandler(logger, db)
 
 	router := handler.NewRouter(logger, healthHandler, computerHandler, reportHandler)

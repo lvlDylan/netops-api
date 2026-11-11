@@ -1,22 +1,22 @@
 package handler
 
 import (
-	"database/sql"
 	"encoding/json"
 	"net/http"
 	"netops-api/internal/domain"
 	"netops-api/internal/logging"
+	"netops-api/internal/repository"
 )
 
 type ReportHandler struct {
 	logger *logging.Logger
-	db     *sql.DB
+	repo   *repository.ReportRepository
 }
 
-func NewReportHandler(logger *logging.Logger, db *sql.DB) *ReportHandler {
+func NewReportHandler(logger *logging.Logger, repo *repository.ReportRepository) *ReportHandler {
 	return &ReportHandler{
 		logger: logger,
-		db:     db,
+		repo:   repo,
 	}
 }
 
@@ -30,6 +30,12 @@ func (h *ReportHandler) InsertReport(w http.ResponseWriter, r *http.Request) {
 
 	if req.DeviceID == "" {
 		respondWithError(w, http.StatusBadRequest, "payload invalide")
+		return
+	}
+
+	if err := h.repo.SaveReport(r.Context(), req); err != nil {
+		h.logger.Error("échec de la sauvegarde en DB pour la machine (%s): %v", req.DeviceID, err)
+		respondWithError(w, http.StatusServiceUnavailable, "erreur lors de l'insertion en base")
 		return
 	}
 
