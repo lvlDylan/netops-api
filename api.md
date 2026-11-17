@@ -26,8 +26,8 @@ Toutes les erreurs renvoyées par l'API partagent la même structure JSON :
 | Méthode | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/health` | Vérifie l'état de l'API et la connexion DB |
-| `GET` | `/api/computers` | Liste toutes les machines enregistrées |
-| `GET` | `/api/computers/{id}` | Détails d'une machine spécifique |
+| `GET` | `/api/devices` | Liste toutes les machines enregistrées |
+| `GET` | `/api/devices/{id}` | Détails d'une machine spécifique |
 | `GET` | `/api/reports` | Liste l'ensemble des historiques de métriques |
 | `GET` | `/api/reports/{id}` | Récupère un rapport spécifique par son ID |
 | `POST` | `/api/report` | Ingestion d'un nouveau rapport (Agent) |
