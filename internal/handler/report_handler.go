@@ -89,9 +89,9 @@ func (h *ReportHandler) GetReportByDeviceID(w http.ResponseWriter, r *http.Reque
 	if reports == nil {
 		respondWithError(w, http.StatusNotFound, "report introuvable")
 		return
+	}
 
-		w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(reports)
-	}
 }
