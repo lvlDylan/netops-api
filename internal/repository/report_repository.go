@@ -148,3 +148,33 @@ func (r *ReportRepository) GetReportByID(ctx context.Context, id string) (*domai
 
 	return &report, nil
 }
+
+func (r *ReportRepository) GetReportByDeviceID(ctx context.Context, deviceID string) ([]domain.Report, error) {
+	query := `SELECT id, send_at, device_id, ip_address, agent_version, uptime_seconds, mem_usage_percent, mem_used_bytes, mem_total_bytes, cpu_usage_percent, cpu_cores FROM report WHERE device_id = ?`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("erreur lors du SELECT report: %v", err)
+	}
+	defer rows.Close()
+
+	var reports []domain.Report
+	for rows.Next() {
+		var report domain.Report
+		err := rows.Scan(
+			&report.ID, &report.SendAt, &report.DeviceID,
+			&report.IPAddress, &report.AgentVersion, &report.UptimeSeconds,
+			&report.MemUsagePercent, &report.MemUsedBytes, &report.MemTotalBytes,
+			&report.CPUUsagePercent, &report.CPUCores)
+		if err != nil {
+			return nil, fmt.Errorf("erreur lors du scan d'une ligne report: %w", err)
+		}
+
+		reports = append(reports, report)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("erreur lors de l'itération sur les lignes: %w", err)
+	}
+
+	return reports, nil
+}
