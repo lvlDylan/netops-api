@@ -76,3 +76,22 @@ func (h *ReportHandler) GetReportByID(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(report)
 }
+
+func (h *ReportHandler) GetReportByDeviceID(w http.ResponseWriter, r *http.Request) {
+	deviceID := r.PathValue("deviceID")
+	reports, err := h.repo.GetReportByDeviceID(r.Context(), deviceID)
+	if err != nil {
+		h.logger.Error("échec de la récupératuin de l'historique del machine (%s): %v", deviceID, err)
+		respondWithError(w, http.StatusServiceUnavailable, "erreur lors de la récupération des reports de "+deviceID)
+		return
+	}
+
+	if reports == nil {
+		respondWithError(w, http.StatusNotFound, "report introuvable")
+		return
+
+		w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(reports)
+	}
+}
