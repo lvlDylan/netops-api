@@ -32,6 +32,19 @@ func (h *DeviceHandler) GetDevices(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(devices)
 }
 
+func (h *DeviceHandler) GetOnlineDevices(w http.ResponseWriter, r *http.Request) {
+	devices, err := h.repo.GetOnlineDevices(r.Context())
+	if err != nil {
+		h.logger.Error("échec de la récupérations des devices online: %v", err)
+		respondWithError(w, http.StatusServiceUnavailable, "erreur lors de la réucpération des machine en lignes")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(devices)
+}
+
 func (h *DeviceHandler) GetDeviceByID(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 

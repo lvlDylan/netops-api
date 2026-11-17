@@ -18,6 +18,7 @@ func NewRouter(logger *logging.Logger,
 	apiMux := http.NewServeMux()
 	apiMux.HandleFunc("GET /devices", deviceHandler.GetDevices)
 	apiMux.HandleFunc("GET /devices/{id}", deviceHandler.GetDeviceByID)
+	apiMux.HandleFunc("GET /devices/online", deviceHandler.GetOnlineDevices)
 
 	apiMux.HandleFunc("GET /reports", reportHandler.GetReport)
 	apiMux.HandleFunc("GET /report/{id}", reportHandler.GetReportByID)
