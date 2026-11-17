@@ -151,7 +151,7 @@ func (r *ReportRepository) GetReportByID(ctx context.Context, id string) (*domai
 
 func (r *ReportRepository) GetReportByDeviceID(ctx context.Context, deviceID string) ([]domain.Report, error) {
 	query := `SELECT id, send_at, device_id, ip_address, agent_version, uptime_seconds, mem_usage_percent, mem_used_bytes, mem_total_bytes, cpu_usage_percent, cpu_cores FROM report WHERE device_id = ?`
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.db.QueryContext(ctx, query, deviceID)
 	if err != nil {
 		return nil, fmt.Errorf("erreur lors du SELECT report: %v", err)
 	}
