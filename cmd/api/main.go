@@ -40,8 +40,8 @@ func main() {
 
 	router := handler.NewRouter(logger, healthHandler, deviceHandler, reportHandler)
 
-	if err := http.ListenAndServe(":80", router); err != nil {
-		logger.Error("impossible d'écouter sur le port 80: %v", err)
+	if err := http.ListenAndServe(cfg.Port, router); err != nil {
+		logger.Error("impossible d'écouter sur le port %s: %v", cfg.Port, err)
 		return
 	}
 }
